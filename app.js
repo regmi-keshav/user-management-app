@@ -1,7 +1,20 @@
 // app.js
 const express = require("express");
+const connectDB = require("./config/db");
 const path = require("path");
 const app = express();
+require("dotenv").config();
+// Connect Database
+connectDB();
+
+// Init Middleware
+app.use(express.json({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public"));
+
+// Define Routes
+app.use("/api/auth", require("./routes/auth"));
+app.use("/api/users", require("./routes/user"));
 
 // Serve static assets (HTML pages)
 app.get("/", (req, res) =>
