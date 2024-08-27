@@ -16,6 +16,24 @@ router.get("/", auth, async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+// @route    GET api/users/:id
+// @desc     Get user by ID
+// @access   Private
+router.get("/:id", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("-password");
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    if (err.kind === "ObjectId") {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    res.status(500).send("Server error");
+  }
+});
 
 // @route    PUT api/users/:id
 // @desc     Update user
@@ -24,7 +42,7 @@ router.put("/:id", auth, async (req, res) => {
   const { name, phone, profession } = req.body;
 
   try {
-    let user = await User.findById(req.params.id);
+    let user = await User.findById(req.params.id).select("-password");
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
@@ -34,7 +52,7 @@ router.put("/:id", auth, async (req, res) => {
     user.profession = profession || user.profession;
 
     await user.save();
-    res.json(user);
+    res.json({ user });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");
